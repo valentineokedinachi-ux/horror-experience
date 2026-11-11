@@ -1,0 +1,1333 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE LAST CONFESSION — A Horror Experience</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --blood: #8e1018;
+  --paper: #d2c8b9;
+  --black: #050505;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: #030303;
+}
+
+body {
+  background: #030303;
+  color: var(--paper);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+body.entered {
+  overflow-y: auto;
+}
+
+::selection {
+  background: #8e1018;
+  color: white;
+}
+
+/* CINEMATIC OVERLAYS */
+
+.grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: 50;
+  pointer-events: none;
+  opacity: .12;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+  animation: grainMove .2s steps(2) infinite;
+}
+
+@keyframes grainMove {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(2%,-1%); }
+  50% { transform: translate(-1%,2%); }
+  75% { transform: translate(1%,1%); }
+  100% { transform: translate(-2%,-1%); }
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,.42) 70%, #000 120%);
+}
+
+#flashlight {
+  position: fixed;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 40;
+  transform: translate(-50%,-50%);
+  background: radial-gradient(circle, rgba(220,205,165,.09), transparent 70%);
+  mix-blend-mode: screen;
+  transition: opacity .4s;
+}
+
+#flashlight.hidden {
+  opacity: 0;
+}
+
+#transition {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .65s;
+}
+
+#transition.active {
+  opacity: 1;
+}
+
+/* INTRO */
+
+#intro {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  padding: 25px;
+  background:
+    linear-gradient(0deg, rgba(0,0,0,.94), rgba(0,0,0,.6)),
+    url("https://images.pexels.com/photos/9358725/pexels-photo-9358725.jpeg?auto=compress&cs=tinysrgb&w=1800");
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1.4s, visibility 1.4s;
+}
+
+#intro.gone {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.intro-kicker {
+  color: #a88d7b;
+  letter-spacing: 7px;
+  font-size: 10px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  animation: fadeUp 2s both;
+}
+
+.intro-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(55px, 11vw, 130px);
+  font-weight: 400;
+  letter-spacing: 8px;
+  line-height: .9;
+  color: #e0d8cb;
+  text-shadow: 0 0 35px rgba(0,0,0,.8);
+  animation: fadeUp 2.5s both;
+}
+
+.intro-title span {
+  display: block;
+  color: #79151b;
+  font-size: .42em;
+  letter-spacing: 14px;
+  margin-top: 18px;
+}
+
+.intro-warning {
+  margin-top: 35px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #988d83;
+  animation: fadeUp 3s both;
+}
+
+.enter-btn {
+  margin-top: 55px;
+  padding: 17px 40px;
+  border: 1px solid rgba(180,150,130,.5);
+  color: #e0d8cb;
+  background: rgba(0,0,0,.35);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-size: 10px;
+  cursor: pointer;
+  transition: .5s;
+  animation: fadeUp 3.5s both;
+}
+
+.enter-btn:hover {
+  background: #741018;
+  border-color: #741018;
+  letter-spacing: 7px;
+  box-shadow: 0 0 40px rgba(130,0,0,.3);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* HUD */
+
+.hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 60;
+  padding: 22px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.hud.visible {
+  opacity: 1;
+}
+
+.hud-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  letter-spacing: 4px;
+}
+
+.hud-right {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #9b8c7f;
+  text-align: right;
+}
+
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: #8e1018;
+  z-index: 70;
+  transition: width .4s;
+}
+
+/* STORY SCENES */
+
+.scene {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: #070707;
+}
+
+.scene-image {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.12);
+  transition: transform 8s ease, filter 2s ease;
+  filter: brightness(.43) contrast(1.2) saturate(.55);
+  will-change: transform;
+}
+
+.scene.active .scene-image {
+  transform: scale(1.02);
+}
+
+.scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.88), rgba(0,0,0,.35) 65%, rgba(0,0,0,.55)),
+    linear-gradient(0deg, #030303, transparent 35%, rgba(0,0,0,.3));
+}
+
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .15;
+  background: radial-gradient(ellipse at 70% 40%, transparent, #000 80%);
+  pointer-events: none;
+}
+
+.scene-content {
+  width: min(680px, 90%);
+  padding: 120px 0 100px;
+  margin-left: clamp(25px, 10vw, 150px);
+  opacity: 0;
+  transform: translateY(35px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.scene.active .scene-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chapter {
+  color: #a66b63;
+  font-size: 10px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 25px;
+}
+
+.scene h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(45px, 7vw, 88px);
+  font-weight: 400;
+  line-height: .95;
+  letter-spacing: 1px;
+  margin-bottom: 30px;
+  text-shadow: 0 5px 25px #000;
+}
+
+.scene p {
+  max-width: 490px;
+  font-size: 14px;
+  line-height: 2.1;
+  color: #c0b7ab;
+  font-weight: 300;
+}
+
+.scene .whisper {
+  display: block;
+  margin-top: 25px;
+  color: #9a7771;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 23px;
+  font-style: italic;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 38px;
+}
+
+.choice {
+  padding: 15px 22px;
+  border: 1px solid rgba(210,190,170,.35);
+  background: rgba(0,0,0,.45);
+  color: #d5c9bc;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: .4s;
+}
+
+.choice:hover {
+  background: #76151b;
+  border-color: #76151b;
+  transform: translateY(-3px);
+}
+
+.scene-number {
+  position: absolute;
+  right: 35px;
+  bottom: 30px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: rgba(255,255,255,.45);
+}
+
+/* SPECIAL VISUAL DETAILS */
+
+.blood-mark {
+  position: absolute;
+  right: 12%;
+  top: 20%;
+  width: 150px;
+  height: 220px;
+  opacity: .65;
+  pointer-events: none;
+  transform: rotate(-12deg);
+  background:
+    radial-gradient(ellipse at 40% 20%, #4d0509 0 5%, transparent 7%),
+    radial-gradient(ellipse at 65% 35%, #65070d 0 9%, transparent 11%),
+    radial-gradient(ellipse at 35% 55%, #5a080d 0 7%, transparent 9%),
+    linear-gradient(110deg, transparent 35%, rgba(85,0,0,.85) 37%, transparent 40%),
+    linear-gradient(80deg, transparent 50%, rgba(100,0,0,.75) 52%, transparent 55%);
+  filter: blur(1px);
+}
+
+.flicker {
+  animation: flicker 5s infinite;
+}
+
+@keyframes flicker {
+  0%, 18%, 20%, 22%, 60%, 62%, 100% { opacity: 1; }
+  19%, 21%, 61% { opacity: .35; }
+}
+
+.doll-reveal {
+  position: absolute;
+  right: 8%;
+  top: 50%;
+  width: min(32vw, 320px);
+  max-height: 70vh;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transform: translateY(-45%) scale(.8);
+  filter: brightness(.35) contrast(1.4);
+  transition: opacity 2s, transform 3s;
+  pointer-events: none;
+  box-shadow: 0 0 90px rgba(0,0,0,.9);
+}
+
+.doll-reveal.show {
+  opacity: .85;
+  transform: translateY(-50%) scale(1);
+}
+
+.hidden-message {
+  color: #8e1018;
+  letter-spacing: 3px;
+  font-size: 11px;
+  margin-top: 25px;
+  opacity: 0;
+  transition: opacity 1.5s;
+}
+
+.hidden-message.show {
+  opacity: 1;
+}
+
+.photo-wall {
+  position: absolute;
+  right: 7%;
+  top: 20%;
+  width: min(35vw, 370px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  transform: rotate(3deg);
+  opacity: .75;
+}
+
+.photo-wall img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  filter: grayscale(1) brightness(.45) contrast(1.2);
+  border: 5px solid #161311;
+  box-shadow: 0 10px 30px #000;
+}
+
+.photo-wall img:nth-child(2) {
+  transform: translateY(25px);
+}
+
+.photo-wall img:nth-child(3) {
+  transform: translateY(-15px);
+}
+
+/* FINAL */
+
+#ending {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  background:
+    linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.97)),
+    url("https://images.pexels.com/photos/29152499/pexels-photo-29152499.jpeg?auto=compress&cs=tinysrgb&w=1600");
+  background-size: cover;
+  background-position: center;
+  padding: 35px;
+}
+
+#ending h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(50px, 9vw, 105px);
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 30px;
+}
+
+#ending p {
+  max-width: 550px;
+  color: #b3a89c;
+  font-size: 13px;
+  line-height: 2.1;
+}
+
+.restart {
+  margin-top: 40px;
+  background: transparent;
+  color: #bda99a;
+  border: 1px solid #6f4b45;
+  padding: 15px 28px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: .4s;
+  font-size: 9px;
+}
+
+.restart:hover {
+  background: #78151c;
+  color: white;
+}
+
+footer {
+  padding: 25px;
+  text-align: center;
+  background: #020202;
+  color: #4e4742;
+  font-size: 9px;
+  letter-spacing: 4px;
+}
+
+/* CINEMATIC SOUND CONTROL */
+
+.sound-toggle {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 13px 18px;
+    color: #d2c8b9;
+    background: rgba(5, 5, 5, .88);
+    border: 1px solid rgba(166, 107, 99, .55);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    transition: .4s ease;
+}
+
+.sound-toggle:hover {
+    background: #641016;
+    border-color: #a66b63;
+    box-shadow: 0 0 25px rgba(142, 16, 24, .25);
+    transform: translateY(-3px);
+}
+
+#soundIcon {
+    font-size: 17px;
+    color: #a66b63;
+}
+
+.sound-toggle.muted {
+    opacity: .65;
+    border-color: rgba(150, 150, 150, .3);
+}
+
+@media(max-width: 700px) {
+    .sound-toggle {
+        right: 15px;
+        bottom: 15px;
+        padding: 12px 14px;
+    }
+}
+
+/* MOBILE */
+
+@media(max-width: 700px) {
+  .hud {
+    padding: 18px;
+  }
+
+  .scene {
+    align-items: flex-end;
+  }
+
+  .scene::before {
+    background:
+      linear-gradient(0deg, rgba(0,0,0,.98), rgba(0,0,0,.68) 55%, rgba(0,0,0,.2));
+  }
+
+  .scene-content {
+    margin: 0;
+    padding: 150px 25px 110px;
+    width: 100%;
+  }
+
+  .scene h2 {
+    font-size: 55px;
+  }
+
+  .scene p {
+    font-size: 13px;
+  }
+
+  .doll-reveal {
+    width: 38vw;
+    right: 5%;
+    top: 23%;
+    max-height: 35vh;
+    transform: translateY(-45%) scale(.8);
+  }
+
+  .doll-reveal.show {
+    transform: translateY(-45%) scale(1);
+  }
+
+  .photo-wall {
+    top: 13%;
+    right: 5%;
+    width: 42vw;
+  }
+
+  .photo-wall img {
+    height: 90px;
+  }
+
+  .blood-mark {
+    right: 5%;
+    top: 10%;
+    transform: scale(.65) rotate(-12deg);
+  }
+
+  #flashlight {
+    display: none;
+  }
+
+  .intro-title {
+    letter-spacing: 4px;
+  }
+
+  .intro-title span {
+    letter-spacing: 7px;
+  }
+}
+
+@media(prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="grain"></div>
+<div class="vignette"></div>
+<div id="flashlight"></div>
+<div id="transition"></div>
+<div class="progress" id="progress"></div>
+
+
+
+<!-- HORROR AUDIO SYSTEM -->
+<audio id="backgroundMusic"
+       src="audio/lost-girl-haunting-melody-sound-effect-wordless-song-5-alesiadavina.wav"
+       loop
+       preload="auto"></audio>
+
+<audio id="soundEffect" preload="auto"></audio>
+
+<button id="soundToggle"
+        class="sound-toggle"
+        type="button"
+        onclick="toggleSound()"
+        aria-label="Mute sound"
+        aria-pressed="true">
+    <span id="soundIcon">♫</span>
+    <span id="soundLabel">SOUND ON</span>
+</button>
+
+
+
+<!-- INTRO SCREEN -->
+
+<div id="intro">
+  <div class="intro-kicker">A psychological horror experience</div>
+  <h1 class="intro-title">
+    THE LAST
+    <span>CONFESSION</span>
+  </h1>
+  <div class="intro-warning">
+    SOME DOORS SHOULD REMAIN CLOSED.
+  </div>
+  <button class="enter-btn" onclick="enterStory()">Enter the house</button>
+</div>
+
+<!-- TOP HUD -->
+
+<div class="hud" id="hud">
+  <div class="hud-logo">THE LAST CONFESSION</div>
+  <div class="hud-right" id="chapterLabel">THE HOUSE REMEMBERS</div>
+</div>
+
+<main id="story">
+
+<!-- CHAPTER 1 -->
+
+<section class="scene" id="scene1">
+  <div class="scene-image" style="background-image:url('https://images.pexels.com/photos/9358725/pexels-photo-9358725.jpeg?auto=compress&cs=tinysrgb&w=2000')"></div>
+  <div class="scene-content">
+    <div class="chapter">Chapter I — The Arrival</div>
+    <h2>You came<br>back home.</h2>
+    <p>
+      The road ended twenty minutes ago. Your phone has no signal.
+      The house stands exactly where you remember it. Same windows.
+      Same broken gate. Same light upstairs.
+      <br><br>
+      But nobody has lived here for eleven years.
+    </p>
+    <span class="whisper">Then why is someone standing behind the curtain?</span>
+    <div class="actions">
+      <button class="choice" onclick="goTo('scene2')">Approach the house</button>
+    </div>
+  </div>
+  <div class="scene-number">01 / 08</div>
+</section>
+
+<!-- CHAPTER 2 -->
+
+<section class="scene" id="scene2">
+  <div class="scene-image" style="background-image:url('https://cdn.pixabay.com/photo/2019/03/15/21/30/gang-4058036_1280.jpg')"></div>
+  <div class="scene-content">
+    <div class="chapter">Chapter II — The Hallway</div>
+    <h2>Someone<br>was here.</h2>
+    <p>
+      The front door opens without resistance.
+      Inside, the air smells of wet wood and something metallic.
+      A family photograph hangs crooked on the wall.
+      <br><br>
+      You recognize everyone in it.
+      Your mother. Your father. Your younger sister.
+      <br><br>
+      And someone standing behind all of them.
+    </p>
+    <span class="whisper">You don't remember that person.</span>
+    <div class="actions">
+      <button class="choice" onclick="goTo('scene3')">Walk further inside</button>
+      <button class="choice" onclick="revealMessage(this,'The photograph was taken tomorrow.')">Look at the photograph</button>
+    </div>
+    <div class="hidden-message"></div>
+  </div>
+  <div class="blood-mark"></div>
+  <div class="scene-number">02 / 08</div>
+</section>
+
+<!-- CHAPTER 3 -->
+
+<section class="scene" id="scene3">
+  <div class="scene-image" style="background-image:url('https://images.pexels.com/photos/1411446/pexels-photo-1411446.jpeg?auto=compress&cs=tinysrgb&w=2000')"></div>
+  <div class="scene-content">
+    <div class="chapter">Chapter III — The Living Room</div>
+    <h2>Don't look<br>behind you.</h2>
+    <p>
+      The living room is covered in dust. The television is on,
+      but the screen shows nothing except static.
+      <br><br>
+      A chair rocks slowly in the corner.
+      Nobody is sitting in it.
+      <br><br>
+      On the floor, you find a small red ribbon.
+      It belongs to your sister.
+    </p>
+    <span class="whisper">You buried that ribbon with her.</span>
+    <div class="actions">
+      <button class="choice" onclick="goTo('scene4')">Follow the sound upstairs</button>
+      <button class="choice" onclick="revealDoll()">Look at the corner</button>
+    </div>
+  </div>
+  <img class="doll-reveal" id="doll" src="https://images.pexels.com/photos/33835894/pexels-photo-33835894.jpeg?auto=compress&cs=tinysrgb&w=700" alt="A disturbing doll in a dark room">
+  <div class="scene-number">03 / 08</div>
+</section>
+
+<!-- CHAPTER 4 -->
+
+<section class="scene" id="scene4">
+  <div class="scene-image" style="background-image:url('https://images.pexels.com/photos/11595477/pexels-photo-11595477.jpeg?auto=compress&cs=tinysrgb&w=2000')"></div>
+  <div class="scene-content">
+    <div class="chapter">Chapter IV — The Upstairs Room</div>
+    <h2>Her room<br>is untouched.</h2>
+    <p>
+      The door is open.
+      The little bed is still there. The wardrobe.
+      The drawings on the wall.
+      <br><br>
+      A child's handwriting covers the mirror.
+      The letters are written backwards.
+      <br><br>
+      You move closer.
+    </p>
+    <span class="whisper">"You promised you wouldn't tell."</span>
+    <div class="actions">
+      <button class="choice" onclick="revealMessage(this,'THE MIRROR IS NOT REFLECTING YOU.')">Read the writing</button>
+      <button class="choice" onclick="goTo('scene5')">Go to the mirror</button>
+    </div>
+    <div class="hidden-message"></div>
+  </div>
+  <div class="scene-number">04 / 08</div>
+</section>
+
+<!-- CHAPTER 5 -->
+
+<section class="scene" id="scene5">
+  <div class="scene-image" style="background-image:url('https://images.pexels.com/photos/27694907/pexels-photo-27694907.jpeg?auto=compress&cs=tinysrgb&w=2000')"></div>
+  <div class="scene-content">
+    <div class="chapter">Chapter V — The Reflection</div>
+    <h2>It moved<br>without you.</h2>
+    <p>
+      You stand in front of the mirror.
+      Your reflection stares back.
+      <br><br>
+      You raise your right hand.
+      It raises its left.
+      <br><br>
+      Then it smiles.
+      You aren't smiling.
+    </p>
+    <span class="whisper">Something is learning how to look like you.</span>
+    <div class="actions">
+      <button class="choice" onclick="mirrorEvent()">Touch the mirror</button>
+      <button class="choice" onclick="goTo('scene6')">Back away slowly</button>
+    </div>
+    <div class="hidden-message" id="mirrorMessage"></div>
+  </div>
+  <div class="scene-number">05 / 08</div>
+</section>
+
+<!-- CHAPTER 6 -->
+
+<section class="scene" id="scene6">
+  <div class="scene-image" style="background-image:url('https://images.pexels.com/photos/7393872/pexels-photo-7393872.jpeg?auto=compress&cs=tinysrgb&w=2000')"></div>
+  <div class="scene-content">
+    <div class="chapter">Chapter VI — The Staircase</div>
+    <h2>There is<br>someone below.</h2>
+    <p>
+      The staircase descends into darkness.
+      You remember being told never to enter the basement.
+      <br><br>
+      The door is open now.
+      A red light flickers from somewhere beneath the house.
+      <br><br>
+      Then you hear your mother's voice.
+    </p>
+    <span class="whisper">"Please. Don't let it know you're here."</span>
+    <div class="actions">
+      <button class="choice" onclick="goTo('scene7')">Descend into the basement</button>
+      <button class="choice" onclick="revealMessage(this,'THE FOOTSTEPS ARE COMING UP.')">Listen carefully</button>
+    </div>
+    <div class="hidden-message"></div>
+  </div>
+  <div class="scene-number">06 / 08</div>
+</section>
+
+<!-- CHAPTER 7 -->
+
+<section class="scene" id="scene7">
+  <div class="scene-image" style="background-image:url('https://images.pexels.com/photos/29152499/pexels-photo-29152499.jpeg?auto=compress&cs=tinysrgb&w=1800')"></div>
+  <div class="scene-content">
+    <div class="chapter">Chapter VII — The Confession</div>
+    <h2>You were<br>never alone.</h2>
+    <p>
+      There are photographs on the table.
+      Every photograph shows the same family.
+      Every photograph shows the same room.
+      <br><br>
+      But in each one, a different person is missing.
+      <br><br>
+      The last photograph is dated today.
+      You are standing in it.
+    </p>
+    <span class="whisper">And behind you is the thing you let into this house.</span>
+    <div class="actions">
+      <button class="choice" onclick="finalReveal()">Turn around</button>
+    </div>
+    <div class="hidden-message" id="finalMessage"></div>
+  </div>
+  <div class="photo-wall">
+    <img src="https://images.pexels.com/photos/29152499/pexels-photo-29152499.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Disturbing photograph">
+    <img src="https://images.pexels.com/photos/33835894/pexels-photo-33835894.jpeg?auto=compress&cs=tinysrgb&w=500" alt="A doll in darkness">
+    <img src="https://images.pexels.com/photos/27694907/pexels-photo-27694907.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Abandoned room">
+    <img src="https://cdn.pixabay.com/photo/2019/03/15/21/30/gang-4058036_1280.jpg" alt="Dark corridor">
+  </div>
+  <div class="scene-number">07 / 08</div>
+</section>
+
+<!-- FINAL CHAPTER -->
+
+<section id="ending">
+  <div class="chapter">Chapter VIII — The Last Confession</div>
+  <h2>It was<br>never your house.</h2>
+  <p>
+    You remember now.
+    The house was never haunted.
+    It was waiting.
+    <br><br>
+    And the thing in the mirror?
+    It wasn't trying to get out.
+    <br><br>
+    It was waiting for you to come back in.
+  </p>
+  <button class="restart" onclick="restartStory()">RETURN TO THE BEGINNING</button>
+</section>
+
+</main>
+
+<footer>
+  THE LAST CONFESSION · SOME SECRETS NEVER STAY BURIED
+</footer>
+
+<script>
+/* ==========================================
+   THE LAST CONFESSION — COMPLETE EXPERIENCE
+========================================== */
+
+/* ELEMENTS */
+const intro = document.getElementById("intro");
+const hud = document.getElementById("hud");
+const transitionLayer = document.getElementById("transition");
+const progress = document.getElementById("progress");
+const flashlight = document.getElementById("flashlight");
+
+const backgroundMusic = document.getElementById("backgroundMusic");
+const soundEffect = document.getElementById("soundEffect");
+
+const soundToggle = document.getElementById("soundToggle");
+const soundIcon = document.getElementById("soundIcon");
+const soundLabel = document.getElementById("soundLabel");
+const chapterLabel = document.getElementById("chapterLabel");
+
+/* IMPORTANT: THESE VARIABLES WERE MISSING */
+let entered = false;
+let soundEnabled = true;
+let musicStarted = false;
+
+/* ==========================================
+   BACKGROUND MUSIC
+========================================== */
+
+backgroundMusic.volume = 0.22;
+backgroundMusic.loop = true;
+
+function startBackgroundMusic() {
+    if (!soundEnabled || musicStarted) return;
+
+    backgroundMusic.play()
+        .then(() => {
+            musicStarted = true;
+        })
+        .catch(error => {
+            console.log("Music playback failed:", error);
+            musicStarted = false;
+        });
+}
+
+/* ==========================================
+   HORROR SOUND EFFECTS
+========================================== */
+
+const horrorSounds = {
+    breathing:
+        "audio/male-poltergeist-dark-lurking-horror-breath-alesiadavina.wav",
+
+    ghostHowl:
+        "audio/creepy-female-ghost-howl-paranormal-sfx-alesiadavina.wav",
+
+    agitatedWail:
+        "audio/agitated-female-ghost-wail-paranormal-sound-effect-alesiadavina.wav",
+
+    creepyGirl:
+        "audio/creepy-girl-abandoned-place-voice-line-sfx-alesiadavina.wav",
+
+    imploringWail:
+        "audio/female-ghost-seems-to-let-out-an-imploring-wail-alesiadavina.wav",
+
+    scream:
+        "audio/disturbing-scream-paranormal-sound-alesiadavina.wav",
+
+    vampire:
+        "audio/female-vampire-give-me-your-soul-voice-sfx-alesiadavina.wav"
+};
+
+function playHorrorSound(soundName, volume = 0.8) {
+    if (!soundEnabled) return;
+
+    const soundPath = horrorSounds[soundName];
+
+    if (!soundPath) {
+        console.warn("Unknown horror sound:", soundName);
+        return;
+    }
+
+    soundEffect.pause();
+    soundEffect.currentTime = 0;
+    soundEffect.src = soundPath;
+    soundEffect.volume = volume;
+
+    soundEffect.play().catch(error => {
+        console.log("Sound effect playback failed:", error);
+    });
+}
+
+/* ==========================================
+   SOUND CONTROL
+========================================== */
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+
+    soundToggle.classList.toggle("muted", !soundEnabled);
+
+    if (soundEnabled) {
+        soundIcon.textContent = "♫";
+        soundLabel.textContent = "SOUND ON";
+
+        soundToggle.setAttribute("aria-label", "Mute sound");
+        soundToggle.setAttribute("aria-pressed", "true");
+
+        if (entered) {
+            startBackgroundMusic();
+        }
+    } else {
+        soundIcon.textContent = "×";
+        soundLabel.textContent = "SOUND OFF";
+
+        soundToggle.setAttribute("aria-label", "Unmute sound");
+        soundToggle.setAttribute("aria-pressed", "false");
+
+        backgroundMusic.pause();
+        soundEffect.pause();
+    }
+}
+
+/* ==========================================
+   SCENE SOUND EFFECTS
+========================================== */
+
+const sceneSounds = {
+    scene2: "ghostHowl",
+    scene3: "agitatedWail",
+    scene4: "creepyGirl",
+    scene5: "imploringWail",
+    scene6: "breathing",
+    scene7: "vampire",
+    ending: "ghostHowl"
+};
+
+/* ==========================================
+   ENTER THE HOUSE — FIXED
+========================================== */
+
+function enterStory() {
+    if (entered) return;
+
+    entered = true;
+
+    /* Start music directly from the visitor's click */
+    startBackgroundMusic();
+
+    intro.classList.add("gone");
+    hud.classList.add("visible");
+    document.body.classList.add("entered");
+
+    /* First sound: something breathing in the house */
+    playHorrorSound("breathing", 0.45);
+
+    setTimeout(() => {
+        document.getElementById("scene1").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }, 400);
+}
+
+/* ==========================================
+   MOVE BETWEEN CHAPTERS
+========================================== */
+
+function goTo(id) {
+    const destination = document.getElementById(id);
+
+    if (!destination) {
+        console.error("Scene not found:", id);
+        return;
+    }
+
+    transitionLayer.classList.add("active");
+
+    setTimeout(() => {
+        destination.scrollIntoView({
+            behavior: "instant",
+            block: "start"
+        });
+
+        transitionLayer.classList.remove("active");
+
+        if (sceneSounds[id]) {
+            playHorrorSound(sceneSounds[id], 0.75);
+        }
+
+        if (id === "ending") {
+            playHorrorSound("agitatedWail", 0.9);
+        }
+    }, 550);
+}
+
+/* ==========================================
+   REVEAL HIDDEN MESSAGES
+========================================== */
+
+function revealMessage(button, message) {
+    const container = button.parentElement.nextElementSibling;
+
+    if (!container) return;
+
+    container.textContent = message;
+    container.classList.add("show");
+
+    button.disabled = true;
+    button.style.opacity = ".35";
+
+    if (button.closest("#scene2")) {
+        playHorrorSound("creepyGirl", 0.75);
+    }
+
+    if (button.closest("#scene4")) {
+        playHorrorSound("imploringWail", 0.75);
+    }
+
+    if (button.closest("#scene6")) {
+        playHorrorSound("breathing", 0.65);
+    }
+}
+
+/* ==========================================
+   THE DOLL REVEAL
+========================================== */
+
+function revealDoll() {
+    playHorrorSound("agitatedWail", 0.9);
+
+    const doll = document.getElementById("doll");
+
+    doll.classList.add("show");
+}
+
+/* ==========================================
+   THE MIRROR EVENT
+========================================== */
+
+function mirrorEvent() {
+    playHorrorSound("scream", 0.9);
+
+    const message = document.getElementById("mirrorMessage");
+
+    message.textContent =
+        "YOUR REFLECTION IS STILL STANDING THERE.";
+
+    message.classList.add("show");
+
+    const scene = document.getElementById("scene5");
+
+    scene.style.filter = "contrast(1.2)";
+
+    setTimeout(() => {
+        goTo("scene6");
+    }, 2600);
+}
+
+/* ==========================================
+   THE FINAL REVEAL
+========================================== */
+
+function finalReveal() {
+    playHorrorSound("vampire", 1);
+
+    const message = document.getElementById("finalMessage");
+
+    message.textContent =
+        "IT IS STANDING RIGHT BEHIND YOU.";
+
+    message.classList.add("show");
+
+    const scene = document.getElementById("scene7");
+
+    scene.querySelector(".scene-image").style.filter =
+        "brightness(.12) contrast(1.7)";
+
+    setTimeout(() => {
+        goTo("ending");
+    }, 3500);
+}
+
+/* ==========================================
+   RESTART THE EXPERIENCE
+========================================== */
+
+function restartStory() {
+    transitionLayer.classList.add("active");
+
+    setTimeout(() => {
+        document.querySelectorAll(".hidden-message").forEach(el => {
+            el.textContent = "";
+            el.classList.remove("show");
+        });
+
+        document.getElementById("doll").classList.remove("show");
+
+        document.getElementById("mirrorMessage").classList.remove("show");
+
+        document.getElementById("finalMessage").classList.remove("show");
+
+        document.querySelectorAll(".choice").forEach(button => {
+            button.disabled = false;
+            button.style.opacity = "1";
+        });
+
+        document.querySelector("#scene7 .scene-image").style.filter = "";
+
+        document.getElementById("scene5").style.filter = "";
+
+        document.getElementById("scene1").scrollIntoView({
+            behavior: "instant",
+            block: "start"
+        });
+
+        chapterLabel.textContent = "CHAPTER 01";
+
+        transitionLayer.classList.remove("active");
+
+        if (soundEnabled) {
+            playHorrorSound("breathing", 0.45);
+        }
+
+    }, 650);
+}
+
+/* ==========================================
+   SCROLL REVEAL
+========================================== */
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("active");
+
+            const index = [
+                ...document.querySelectorAll(".scene")
+            ].indexOf(entry.target) + 1;
+
+            chapterLabel.textContent =
+                "CHAPTER " + String(index).padStart(2, "0");
+        }
+    });
+}, {
+    threshold: 0.45
+});
+
+document.querySelectorAll(".scene").forEach(scene => {
+    observer.observe(scene);
+});
+
+/* ==========================================
+   SCROLL PROGRESS
+========================================== */
+
+window.addEventListener("scroll", () => {
+    const scrollable =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+    const percent = scrollable > 0
+        ? (window.scrollY / scrollable) * 100
+        : 0;
+
+    progress.style.width = percent + "%";
+}, { passive: true });
+
+/* ==========================================
+   FIRST-PERSON FLASHLIGHT MOVEMENT
+========================================== */
+
+window.addEventListener("mousemove", (event) => {
+    flashlight.style.left = event.clientX + "px";
+    flashlight.style.top = event.clientY + "px";
+});
+
+/* ==========================================
+   CINEMATIC CAMERA MOVEMENT
+========================================== */
+
+document.querySelectorAll(".scene").forEach(scene => {
+
+    scene.addEventListener("mousemove", (event) => {
+        const rect = scene.getBoundingClientRect();
+
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+
+        const image = scene.querySelector(".scene-image");
+
+        if (image) {
+            image.style.transform =
+                `scale(1.08) translate(${(x - .5) * -13}px, ${(y - .5) * -10}px)`;
+        }
+    });
+
+    scene.addEventListener("mouseleave", () => {
+        const image = scene.querySelector(".scene-image");
+
+        if (image) {
+            image.style.transform = "";
+        }
+    });
+});
+
+/* ==========================================
+   INITIAL SOUND BUTTON STATE
+========================================== */
+
+soundToggle.classList.remove("muted");
+soundIcon.textContent = "♫";
+soundLabel.textContent = "SOUND ON";
+
+</script>
+
+</body>
+</html>
